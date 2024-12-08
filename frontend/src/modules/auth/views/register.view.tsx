@@ -1,8 +1,14 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom"
+import { useState } from "react";
 import { MdEmail, MdPassword, MdOutlinePhoneAndroid  } from "react-icons/md";
+import { Link } from "react-router-dom"
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { registerFormSchema, RegisterFormSchema } from "../validators/register.validator";
 
 export default function RegisterView(){
+    const [isError, setIsError] = useState<boolean>(false)
+    const [message, setMessage] = useState<string>("")
     const [showPassword, setShowPassword] = useState<boolean>(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false)
 
@@ -16,6 +22,21 @@ export default function RegisterView(){
         setShowConfirmPassword(!showConfirmPassword)
     }
 
+    const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormSchema>({
+        resolver: zodResolver(registerFormSchema)
+    })
+
+    const onSubmit = async (data: RegisterFormSchema) => {
+        try {
+            setIsError(false)
+            setMessage("register successfully")
+            console.log(data)
+        } catch (error) {
+            setIsError(true)
+            setMessage((error as Error).message)
+        }
+    }
+
     return (
         <div className="w-full min-h-screen flex justify-center items-center p-2">
             <div className="w-full max-w-md border shadow-md bg-white">
@@ -24,10 +45,12 @@ export default function RegisterView(){
                     <p className="text-md font-medium text-gray-500">Please enter your details for register</p>
                 </div>
                 <div className="w-full p-4 flex flex-col gap-4">
-                    <div className="w-full h-14 p-2.5 flex items-center justify-center rounded-md border shadow bg-green-500">
-                        <p className="text-md font-semibold text-white">Register Success</p>
-                    </div>
-                    <form className="w-full flex flex-col gap-4">
+                    {message &&
+                        <div className={`w-full h-14 p-2.5 flex items-center justify-center rounded-md border shadow ${isError ? "bg-red-500" : "bg-green-500"}`}>
+                            <p className="text-md font-semibold text-white">{message}</p>
+                        </div>
+                    }
+                    <form onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col gap-4">
                         <div className="w-full flex items-center justify-between gap-2.5">
                             <div className="w-full flex flex-col gap-2">
                                 <div className="w-full flex items-center">
@@ -35,9 +58,10 @@ export default function RegisterView(){
                                         type="text" 
                                         placeholder="First Name" 
                                         className="w-full p-2.5 border rounded-md outline-none focus:shadow-md" 
+                                        {...register("firstName")}
                                     />
                                 </div>
-                                <span className="text-sm font-semibold text-red-500">First name is required</span>
+                                {errors.firstName && <span className="text-sm font-semibold text-red-500">{errors.firstName.message}</span>}
                             </div>
                             <div className="w-full flex flex-col gap-2">
                                 <div className="w-full flex items-center">
@@ -45,9 +69,10 @@ export default function RegisterView(){
                                         type="text" 
                                         placeholder="Last Name" 
                                         className="w-full p-2.5 border rounded-md outline-none focus:shadow-md" 
+                                        {...register("lastName")}
                                     />
                                 </div>
-                                <span className="text-sm font-semibold text-red-500">Last name is required</span>
+                                {errors.lastName && <span className="text-sm font-semibold text-red-500">{errors.lastName.message}</span>}
                             </div>
                         </div>
                         <div className="w-full flex flex-col gap-2">
@@ -57,9 +82,10 @@ export default function RegisterView(){
                                     type="text" 
                                     placeholder="Enter your phone number" 
                                     className="w-full p-2.5 pl-12 border rounded-md outline-none focus:shadow-md" 
+                                    {...register("phoneNumber")}
                                 />
                             </div>
-                            <span className="text-sm font-semibold text-red-500">Phone number is required</span>
+                            {errors.phoneNumber && <span className="text-sm font-semibold text-red-500">{errors.phoneNumber.message}</span>}
                         </div>
                         <div className="w-full flex flex-col gap-2">
                             <div className="w-full flex items-center relative">
@@ -68,9 +94,10 @@ export default function RegisterView(){
                                     type="email" 
                                     placeholder="Enter your email" 
                                     className="w-full p-2.5 pl-12 border rounded-md outline-none focus:shadow-md" 
+                                    {...register("email")}
                                 />
                             </div>
-                            <span className="text-sm font-semibold text-red-500">Email is required</span>
+                            {errors.email && <span className="text-sm font-semibold text-red-500">{errors.email.message}</span>}
                         </div>
                         <div className="w-full flex flex-col gap-2">
                             <div className="w-full flex items-center relative">
@@ -79,12 +106,13 @@ export default function RegisterView(){
                                     type={showPassword ? "text" : "password"} 
                                     placeholder={showPassword ? "Enter your password" : "********"} 
                                     className="w-full p-2.5 px-12 border rounded-md outline-none focus:shadow-md" 
+                                    {...register("password")}
                                 />
                                 <button onClick={handleShowPassword} className="text-gray-500 absolute top-3 right-3 text-sm">
                                     {showPassword ? "Hide" : "Show"}
                                 </button>
                             </div>
-                            <span className="text-sm font-semibold text-red-500">Password is required</span>
+                            {errors.password && <span className="text-sm font-semibold text-red-500">{errors.password.message}</span>}
                         </div>
                         <div className="w-full flex flex-col gap-2">
                             <div className="w-full flex items-center relative">
@@ -93,14 +121,15 @@ export default function RegisterView(){
                                     type={showPassword ? "text" : "password"} 
                                     placeholder={showConfirmPassword ? "Enter your confirm password" : "********"} 
                                     className="w-full p-2.5 px-12 border rounded-md outline-none focus:shadow-md" 
+                                    {...register("confirmPassword")}
                                 />
                                 <button onClick={handleShowConfirmPassword} className="text-gray-500 absolute top-3 right-3 text-sm">
                                     {showConfirmPassword ? "Hide" : "Show"}
                                 </button>
                             </div>
-                            <span className="text-sm font-semibold text-red-500">Password is required</span>
+                            {errors.confirmPassword && <span className="text-sm font-semibold text-red-500">{errors.confirmPassword.message}</span>}
                         </div>
-                        <button className="w-full p-2.5 border rounded-md bg-blue-500 hover:bg-blue-700 text-white">Login</button>
+                        <button className="w-full p-2.5 border rounded-md bg-blue-500 hover:bg-blue-700 text-white">Register</button>
                     </form>
                 </div>
                 <div className="w-full p-4 border-t-2 border-blue-500">
