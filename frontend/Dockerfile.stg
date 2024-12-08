@@ -1,0 +1,22 @@
+FROM node:20-alpine
+
+# DIREKTORI APP
+WORKDIR /app
+
+# COPY FILE JSON KE WORKDIR /app
+COPY package* .
+
+# INSTALL DEPENDENCY
+RUN npm install
+
+# COPY SEMUA SOURCE KE WORKDIR /app
+COPY . .
+
+# BUILD APP
+RUN npm run build
+
+# EXPOSE PORT
+EXPOSE 3001
+
+# RUN COMMAND
+CMD [ "npm", "run", "preview" ]
